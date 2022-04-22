@@ -50,6 +50,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if (userRepository.findByName(user.getUsername()) != null) {
             throw new IllegalArgumentException(String.format("User with username %s already exists in database", user.getUsername()));
         }
+        for (Role role : user.getRoles()) {
+            role.setId(roleRepository.findAll().stream().filter(i -> i.getName().equals(role.getName())).findFirst().get().getId());
+        }
         user.setPassword((passwordEncoder.encode(user.getPassword())));
         userRepository.save(user);
         return true;
@@ -65,6 +68,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public void edit(User user, int id) {
+        for (Role role : user.getRoles()) {
+            role.setId(roleRepository.findAll().stream().filter(i -> i.getName().equals(role.getName())).findFirst().get().getId());
+        }
         user.setId(id);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
